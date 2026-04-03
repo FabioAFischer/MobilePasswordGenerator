@@ -2,10 +2,10 @@ import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import SignIn from "./screens/SingIn";
-import SignUp from "./screens/SingUp";
-import Home from "./screens/Home";
-import Historico from "./screens/Historico";
+import SignIn from "./screens/SingIn.js";
+import SignUp from "./screens/SingUp.js";
+import Home from "./screens/Home.js";
+import Historico from "./screens/Historico.js";
 
 const Stack = createNativeStackNavigator();
 

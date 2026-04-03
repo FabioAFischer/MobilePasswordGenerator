@@ -44,7 +44,7 @@ export default function SignUp({ navigation }) {
           <Text style={styles.label}>Nome</Text>
           <TextInput
             placeholder="Digite seu nome"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor="#7A7A7A"
             style={styles.input}
             value={nome}
             onChangeText={setNome}
@@ -53,7 +53,7 @@ export default function SignUp({ navigation }) {
           <Text style={styles.label}>E-mail</Text>
           <TextInput
             placeholder="Digite seu e-mail"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor="#7A7A7A"
             style={styles.input}
             value={email}
             onChangeText={setEmail}
@@ -64,7 +64,7 @@ export default function SignUp({ navigation }) {
           <Text style={styles.label}>Senha</Text>
           <TextInput
             placeholder="Digite sua senha"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor="#7A7A7A"
             style={styles.input}
             value={senha}
             onChangeText={setSenha}
@@ -74,7 +74,7 @@ export default function SignUp({ navigation }) {
           <Text style={styles.label}>Confirmar senha</Text>
           <TextInput
             placeholder="Confirme sua senha"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor="#7A7A7A"
             style={styles.input}
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
@@ -112,7 +112,7 @@ export default function SignUp({ navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#f5fff9",
+    backgroundColor: "#121212",
   },
   container: {
     flex: 1,
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: "#39e092",
+    backgroundColor: "#FF7A00",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
@@ -138,46 +138,46 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700",
-    color: "#0f7275",
+    color: "#FFFFFF",
   },
   subtitle: {
     fontSize: 15,
-    color: "#537070",
+    color: "#B3B3B3",
     marginTop: 6,
   },
   form: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#232323",
     borderRadius: 20,
     padding: 22,
     borderWidth: 1,
-    borderColor: "#dff5e9",
+    borderColor: "#2C2C2C",
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0f7275",
+    color: "#B3B3B3",
     marginBottom: 8,
     marginTop: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#cfe7df",
-    backgroundColor: "#f8fffb",
+    borderColor: "#2C2C2C",
+    backgroundColor: "#1E1E1E",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: "#183131",
+    color: "#FFFFFF",
     marginBottom: 12,
   },
   errorText: {
-    color: "#d64f4f",
+    color: "#FF5252",
     fontSize: 13,
     marginBottom: 10,
     marginTop: -2,
   },
   primaryButton: {
-    backgroundColor: "#39e092",
+    backgroundColor: "#FF7A00",
     paddingVertical: 15,
     borderRadius: 14,
     alignItems: "center",
@@ -188,17 +188,17 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
   primaryButtonText: {
-    color: "#0f7275",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },
   linkText: {
     textAlign: "center",
-    color: "#537070",
+    color: "#B3B3B3",
     fontSize: 14,
   },
   linkStrong: {
-    color: "#0f7275",
+    color: "#FF7A00",
     fontWeight: "700",
   },
 });

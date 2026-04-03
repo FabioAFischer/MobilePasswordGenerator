@@ -2,7 +2,7 @@ import { View, Text, Pressable, StyleSheet, SafeAreaView } from "react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Clipboard from "expo-clipboard";
-import { buscarHistorico, salvarHistorico } from "../services/storage";
+import { buscarHistorico, salvarHistorico } from "../services/storage.js";
 
 export default function Historico({ navigation }) {
   const [historico, setHistorico] = useState([]);
@@ -97,7 +97,7 @@ export default function Historico({ navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#f5fff9",
+    backgroundColor: "#121212",
   },
   container: {
     flex: 1,
@@ -113,10 +113,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#0f7275",
+    color: "#FFFFFF",
   },
   backText: {
-    color: "#dd830e",
+    color: "#FF7A00",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#232323",
     borderWidth: 1,
-    borderColor: "#dff5e9",
+    borderColor: "#2C2C2C",
     borderRadius: 18,
     paddingVertical: 18,
     paddingHorizontal: 18,
@@ -143,12 +143,12 @@ const styles = StyleSheet.create({
   appText: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#0f7275",
+    color: "#FFFFFF",
     marginBottom: 8,
   },
   senhaText: {
     fontSize: 15,
-    color: "#537070",
+    color: "#B3B3B3",
     fontWeight: "600",
     letterSpacing: 0.7,
   },
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontSize: 21,
   },
   empty: {
-    color: "#537070",
+    color: "#B3B3B3",
     textAlign: "center",
     marginTop: 30,
     fontSize: 15,

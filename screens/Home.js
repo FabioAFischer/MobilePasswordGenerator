@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
-import { buscarHistorico, salvarHistorico } from "../services/storage";
+import { buscarHistorico, salvarHistorico } from "../services/storage.js";
 
 const SENHA_PADRAO = "Gere sua senha!";
 
@@ -73,7 +73,7 @@ export default function Home({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <StatusBar style="dark" />
+        <StatusBar style="light" />
 
         <View style={styles.header}>
           <Text style={styles.title}>Gerador de senha</Text>
@@ -137,7 +137,7 @@ export default function Home({ navigation }) {
               <TextInput
                 style={styles.input}
                 placeholder="Ex.: Gmail, Steam, Instagram..."
-                placeholderTextColor="#7a7a7a"
+                placeholderTextColor="#7A7A7A"
                 value={nomeAplicativo}
                 onChangeText={setNomeAplicativo}
               />
@@ -174,7 +174,7 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#f5fff9",
+    backgroundColor: "#121212",
   },
   container: {
     flex: 1,
@@ -193,32 +193,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: "#0f7275",
+    color: "#FFFFFF",
     fontSize: 28,
     fontWeight: "700",
   },
   logout: {
-    color: "#dd830e",
+    color: "#FF7A00",
     fontSize: 16,
     fontWeight: "700",
   },
   passwordBox: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#232323",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#dff5e9",
+    borderColor: "#2C2C2C",
     paddingVertical: 28,
     paddingHorizontal: 20,
     marginBottom: 28,
   },
   passwordLabel: {
-    color: "#537070",
+    color: "#B3B3B3",
     fontSize: 14,
     marginBottom: 10,
     textAlign: "center",
   },
   passwordText: {
-    color: "#0f7275",
+    color: "#FFFFFF",
     textAlign: "center",
     fontSize: 22,
     fontWeight: "700",
@@ -227,26 +227,26 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   button: {
-    backgroundColor: "#39e092",
+    backgroundColor: "#FF7A00",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
   },
   outlineButton: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#2A2A2A",
     borderWidth: 1,
-    borderColor: "#39e092",
+    borderColor: "#3A3A3A",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
   },
   buttonText: {
-    color: "#0f7275",
+    color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 16,
   },
   outlineButtonText: {
-    color: "#0f7275",
+    color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 16,
   },
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -263,39 +263,39 @@ const styles = StyleSheet.create({
   modalBox: {
     width: "100%",
     maxWidth: 420,
-    backgroundColor: "#fff",
+    backgroundColor: "#232323",
     borderRadius: 18,
     padding: 22,
   },
   modalTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#0f7275",
+    color: "#FFFFFF",
     textAlign: "center",
     marginBottom: 18,
   },
   label: {
     marginBottom: 8,
     fontWeight: "600",
-    color: "#0f7275",
+    color: "#B3B3B3",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#cfe7df",
-    backgroundColor: "#f8fffb",
+    borderColor: "#2C2C2C",
+    backgroundColor: "#1E1E1E",
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: "#183131",
+    color: "#FFFFFF",
     marginBottom: 14,
   },
   disabledInput: {
-    backgroundColor: "#eef6f2",
-    color: "#537070",
+    backgroundColor: "#121212",
+    color: "#B3B3B3",
   },
   modalButton: {
-    backgroundColor: "#39e092",
+    backgroundColor: "#FF7A00",
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: "center",
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   cancelButtonText: {
-    color: "#537070",
+    color: "#B3B3B3",
     fontSize: 15,
     fontWeight: "600",
   },
