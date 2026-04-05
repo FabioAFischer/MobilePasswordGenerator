@@ -21,7 +21,11 @@ export default function SignUp({ navigation }) {
     confirmarSenha.trim() !== "";
 
   const senhasIguais = senha === confirmarSenha;
-  const podeRegistrar = camposPreenchidos && senhasIguais;
+
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailValido = regexEmail.test(email.trim());
+
+  const podeRegistrar = camposPreenchidos && senhasIguais && emailValido;
 
   const handleRegistrar = () => {
     if (!podeRegistrar) return;
@@ -60,6 +64,10 @@ export default function SignUp({ navigation }) {
             keyboardType="email-address"
             autoCapitalize="none"
           />
+
+          {email !== "" && !emailValido && (
+            <Text style={styles.errorText}>Digite um e-mail válido.</Text>
+          )}
 
           <Text style={styles.label}>Senha</Text>
           <TextInput
