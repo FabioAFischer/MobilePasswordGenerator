@@ -25,7 +25,11 @@ export default function SignUp({ navigation }) {
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailValido = regexEmail.test(email.trim());
 
-  const podeRegistrar = camposPreenchidos && senhasIguais && emailValido;
+  const regexSenha = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+  const senhaValida = regexSenha.test(senha);
+
+  const podeRegistrar =
+    camposPreenchidos && senhasIguais && emailValido && senhaValida;
 
   const handleRegistrar = () => {
     if (!podeRegistrar) return;
@@ -78,6 +82,13 @@ export default function SignUp({ navigation }) {
             onChangeText={setSenha}
             secureTextEntry
           />
+
+          {senha !== "" && !senhaValida && (
+            <Text style={styles.errorText}>
+              A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula, 1
+              número e 1 caractere especial.
+            </Text>
+          )}
 
           <Text style={styles.label}>Confirmar senha</Text>
           <TextInput
