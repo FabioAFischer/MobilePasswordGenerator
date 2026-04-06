@@ -6,11 +6,14 @@ import {
   Pressable,
   StyleSheet,
   SafeAreaView,
+  Alert,
 } from "react-native";
+import { loginUsuario } from "../services/auth";
 
 export default function SignIn({ navigation, route }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (route?.params?.email) {
@@ -18,15 +21,27 @@ export default function SignIn({ navigation, route }) {
     }
   }, [route?.params?.email]);
 
-  const podeEntrar = email.trim() !== "" && senha.trim() !== "";
+  const podeEntrar = email.trim() !== "" && senha.trim() !== "" && !loading;
 
-  const handleEntrar = () => {
+  const handleEntrar = async () => {
     if (!podeEntrar) return;
 
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Home" }],
-    });
+    try {
+      setLoading(true);
+
+      await loginUsuario({
+        email: email.trim(),
+        senha: senha.trim(),
+      });
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    } catch (error) {
+      Alert.alert("Erro no login", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,23 +58,21 @@ export default function SignIn({ navigation, route }) {
         <View style={styles.form}>
           <Text style={styles.label}>E-mail</Text>
           <TextInput
-            placeholder="Digite seu e-mail"
-            placeholderTextColor="#7A7A7A"
             style={styles.input}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            placeholder="Digite seu e-mail"
           />
 
           <Text style={styles.label}>Senha</Text>
           <TextInput
-            placeholder="Digite sua senha"
-            placeholderTextColor="#7A7A7A"
             style={styles.input}
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
+            placeholder="Digite sua senha"
           />
 
           <Pressable
@@ -67,15 +80,18 @@ export default function SignIn({ navigation, route }) {
             onPress={handleEntrar}
             disabled={!podeEntrar}
           >
-            <Text style={styles.primaryButtonText}>Entrar</Text>
-          </Pressable>
-
-          <Pressable onPress={() => navigation.navigate("SignUp")}>
-            <Text style={styles.linkText}>
-              Ainda não possui conta?{" "}
-              <Text style={styles.linkStrong}>Crie agora</Text>
+            <Text style={styles.primaryButtonText}>
+              {loading ? "Entrando..." : "Entrar"}
             </Text>
           </Pressable>
+
+          <Text
+            style={styles.linkText}
+            onPress={() => navigation.navigate("SignUp")}
+          >
+            Ainda não possui conta?{" "}
+            <Text style={styles.linkStrong}>Crie agora</Text>
+          </Text>
         </View>
       </View>
     </SafeAreaView>

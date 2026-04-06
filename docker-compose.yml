@@ -1,3 +1,4 @@
+version: "3.9"
 services:
   db:
     image: postgres:16
@@ -16,6 +17,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   backend:
     build:
@@ -30,10 +32,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/passwordgenerator
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      JWT_SECRET: super-secret-key-123456789
+      JWT_SECRET: 7f4c9a1e2b8d3f6a9c0e5d1b7a2f4c8e9d6b1a3f5c7e8d2a
       JWT_EXPIRATION: 86400000
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sS --connect-timeout 3 http://localhost:8080 > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   mobile:
     build:
@@ -42,11 +50,20 @@ services:
     container_name: passwordgenerator-mobile
     restart: always
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
-      REACT_APP_API_URL: http://backend:8080
+      EXPO_PUBLIC_API_URL: http://localhost:8080/api
     ports:
-      - "3000:3000"
+      - "8081:8081"
+      - "19006:19006"
+    command: npx expo start --web --host lan
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'const http=require(\"http\"); const req=http.get(\"http://localhost:19006\", res=>{ process.exit(res.statusCode>=200 && res.statusCode<400 ? 0 : 1); }); req.on(\"error\", ()=>process.exit(1));'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   pgdata:

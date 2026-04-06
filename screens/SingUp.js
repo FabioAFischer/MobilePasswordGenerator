@@ -4,125 +4,161 @@ import {
   Text,
   TextInput,
   Pressable,
-  StyleSheet,
   SafeAreaView,
+  Alert,
+  StyleSheet,
 } from "react-native";
+import { registrarUsuario } from "../services/auth";
 
 export default function SignUp({ navigation }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const camposPreenchidos =
-    nome.trim() !== "" &&
-    email.trim() !== "" &&
-    senha.trim() !== "" &&
-    confirmarSenha.trim() !== "";
+  const validarEmail = (email) => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return "E-mail é obrigatório.";
+    if (!trimmedEmail.includes("@")) return "E-mail deve conter '@'.";
+    const parts = trimmedEmail.split("@");
+    if (parts.length !== 2) return "E-mail deve ter apenas um '@'.";
+    if (!parts[0]) return "Parte antes do '@' não pode estar vazia.";
+    if (!parts[1] || !parts[1].includes(".")) return "E-mail deve ter um domínio válido (ex.: dominio.com).";
+    const domainParts = parts[1].split(".");
+    if (domainParts.length < 2 || !domainParts[1]) return "Domínio deve ter uma extensão válida (ex.: .com).";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) return "E-mail contém caracteres inválidos.";
+    return null; // Válido
+  };
 
-  const senhasIguais = senha === confirmarSenha;
+  const validarSenha = (senha) => {
+    if (senha.length < 6) return "A senha deve ter pelo menos 6 caracteres.";
+    if (!/[A-Z]/.test(senha)) return "A senha deve conter pelo menos uma letra maiúscula.";
+    if (!/[0-9]/.test(senha)) return "A senha deve conter pelo menos um número.";
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(senha)) return "A senha deve conter pelo menos um caractere especial.";
+    return null; // Válida
+  };
 
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const emailValido = regexEmail.test(email.trim());
+  const emailErro = email ? validarEmail(email) : null;
+  const senhaErro = senha ? validarSenha(senha.trim()) : null;
+  const confirmarSenhaErro = confirmarSenha
+    ? senha !== confirmarSenha
+      ? "As senhas não coincidem."
+      : null
+    : null;
 
-  const regexSenha = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-  const senhaValida = regexSenha.test(senha);
+  const handleRegistrar = async () => {
+    console.log("handleRegistrar chamado");
+    if (!nome || !email || !senha || !confirmarSenha) {
+      Alert.alert("Atenção", "Preencha todos os campos.");
+      return;
+    }
 
-  const podeRegistrar =
-    camposPreenchidos && senhasIguais && emailValido && senhaValida;
+    if (emailErro) {
+      console.log("Erro de email:", emailErro);
+      Alert.alert("Atenção", emailErro);
+      return;
+    }
 
-  const handleRegistrar = () => {
-    if (!podeRegistrar) return;
+    if (senhaErro) {
+      console.log("Erro de senha:", senhaErro);
+      Alert.alert("Atenção", senhaErro);
+      return;
+    }
 
-    navigation.navigate("SignIn", { email });
+    if (confirmarSenhaErro) {
+      Alert.alert("Atenção", confirmarSenhaErro);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      console.log("Iniciando cadastro com:", { nome: nome.trim(), email: email.trim(), senha: senha.trim() });
+
+      await registrarUsuario({
+        nome: nome.trim(),
+        email: email.trim(),
+        senha: senha.trim(),
+      });
+
+      console.log("Cadastro realizado com sucesso");
+
+      Alert.alert("Sucesso", "Usuário cadastrado com sucesso!");
+
+      navigation.navigate("SignIn", {
+        email: email.trim(),
+      });
+    } catch (error) {
+      console.log("ERRO CADASTRO COMPLETO:", error.details || error);
+
+      const erros = error.details?.erros;
+      const mensagemValidacao = erros
+        ? Object.values(erros).join("\n")
+        : error.message;
+
+      Alert.alert("Erro no cadastro", mensagemValidacao);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <View style={styles.logoArea}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>✨</Text>
-          </View>
-          <Text style={styles.title}>Sign up</Text>
-          <Text style={styles.subtitle}>Crie sua conta</Text>
-        </View>
+        <Text style={styles.title}>Cadastro</Text>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>Nome</Text>
-          <TextInput
-            placeholder="Digite seu nome"
-            placeholderTextColor="#7A7A7A"
-            style={styles.input}
-            value={nome}
-            onChangeText={setNome}
-          />
+        <TextInput
+          style={styles.input}
+          placeholder="Nome"
+          value={nome}
+          onChangeText={setNome}
+        />
 
-          <Text style={styles.label}>E-mail</Text>
-          <TextInput
-            placeholder="Digite seu e-mail"
-            placeholderTextColor="#7A7A7A"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+        <TextInput
+          style={styles.input}
+          placeholder="E-mail"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        {emailErro ? <Text style={styles.errorText}>{emailErro}</Text> : null}
 
-          {email !== "" && !emailValido && (
-            <Text style={styles.errorText}>Digite um e-mail válido.</Text>
-          )}
+        <TextInput
+          style={styles.input}
+          placeholder="Senha"
+          value={senha}
+          onChangeText={setSenha}
+          secureTextEntry
+        />
+        {senhaErro ? <Text style={styles.errorText}>{senhaErro}</Text> : null}
 
-          <Text style={styles.label}>Senha</Text>
-          <TextInput
-            placeholder="Digite sua senha"
-            placeholderTextColor="#7A7A7A"
-            style={styles.input}
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry
-          />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirmar senha"
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
+          secureTextEntry
+        />
+        {confirmarSenhaErro ? <Text style={styles.errorText}>{confirmarSenhaErro}</Text> : null}
 
-          {senha !== "" && !senhaValida && (
-            <Text style={styles.errorText}>
-              A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula, 1
-              número e 1 caractere especial.
-            </Text>
-          )}
+        <Pressable
+          style={styles.primaryButton}
+          onPress={handleRegistrar}
+          disabled={loading}
+        >
+          <Text style={styles.primaryButtonText}>
+            {loading ? "Cadastrando..." : "Cadastrar"}
+          </Text>
+        </Pressable>
 
-          <Text style={styles.label}>Confirmar senha</Text>
-          <TextInput
-            placeholder="Confirme sua senha"
-            placeholderTextColor="#7A7A7A"
-            style={styles.input}
-            value={confirmarSenha}
-            onChangeText={setConfirmarSenha}
-            secureTextEntry
-          />
-
-          {!senhasIguais && confirmarSenha !== "" && (
-            <Text style={styles.errorText}>
-              As senhas precisam ser idênticas.
-            </Text>
-          )}
-
-          <Pressable
-            style={[
-              styles.primaryButton,
-              !podeRegistrar && styles.buttonDisabled,
-            ]}
-            onPress={handleRegistrar}
-            disabled={!podeRegistrar}
-          >
-            <Text style={styles.primaryButtonText}>Registrar</Text>
-          </Pressable>
-
-          <Pressable onPress={() => navigation.goBack()}>
-            <Text style={styles.linkText}>
-              <Text style={styles.linkStrong}>Voltar</Text>
-            </Text>
-          </Pressable>
-        </View>
+        <Pressable onPress={() => navigation.navigate("SignIn")}>
+          <Text style={styles.linkText}>
+            Já tem conta? <Text style={styles.linkStrong}>Entrar</Text>
+          </Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -138,45 +174,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 28,
   },
-  logoArea: {
-    alignItems: "center",
-    marginBottom: 28,
-  },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: "#FF7A00",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  logoText: {
-    fontSize: 32,
-  },
   title: {
     fontSize: 32,
     fontWeight: "700",
     color: "#FFFFFF",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#B3B3B3",
-    marginTop: 6,
-  },
-  form: {
-    backgroundColor: "#232323",
-    borderRadius: 20,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: "#2C2C2C",
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#B3B3B3",
-    marginBottom: 8,
-    marginTop: 6,
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
@@ -189,12 +191,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     marginBottom: 12,
   },
-  errorText: {
-    color: "#FF5252",
-    fontSize: 13,
-    marginBottom: 10,
-    marginTop: -2,
-  },
   primaryButton: {
     backgroundColor: "#FF7A00",
     paddingVertical: 15,
@@ -202,9 +198,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     marginBottom: 18,
-  },
-  buttonDisabled: {
-    opacity: 0.45,
   },
   primaryButtonText: {
     color: "#FFFFFF",
@@ -219,5 +212,10 @@ const styles = StyleSheet.create({
   linkStrong: {
     color: "#FF7A00",
     fontWeight: "700",
+  },
+  errorText: {
+    color: "#FF7A00",
+    marginBottom: 10,
+    fontSize: 13,
   },
 });

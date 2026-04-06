@@ -1,22 +1,42 @@
 import "react-native-gesture-handler";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import SignIn from "./screens/SingIn.js";
-import SignUp from "./screens/SingUp.js";
-import Home from "./screens/Home.js";
-import Historico from "./screens/Historico.js";
+import SignIn from "./screens/SingIn";
+import SignUp from "./screens/SingUp";
+import Home from "./screens/Home";
+import Historico from "./screens/Historico";
+import { obterToken } from "./services/auth";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [initialRoute, setInitialRoute] = useState(null);
+
+  useEffect(() => {
+    async function carregarSessao() {
+      const token = await obterToken();
+      setInitialRoute(token ? "Home" : "SignIn");
+    }
+
+    carregarSessao();
+  }, []);
+
+  if (!initialRoute) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="SignIn"
-        screenOptions={{
-          headerShown: false,
-        }}
+        initialRouteName={initialRoute}
+        screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="SignUp" component={SignUp} />

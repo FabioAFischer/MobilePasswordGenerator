@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import { buscarHistorico, salvarHistorico } from "../services/storage.js";
+import { logoutUsuario } from "../services/auth";
 
 const SENHA_PADRAO = "Gere sua senha!";
 
@@ -21,6 +22,13 @@ export default function Home({ navigation }) {
 
   const senhaGerada = senha !== SENHA_PADRAO;
 
+  const handleLogout = async () => {
+    await logoutUsuario();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "SignIn" }],
+    });
+  };
   const generatePassword = () => {
     let password = "";
     const characters =
