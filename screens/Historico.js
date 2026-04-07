@@ -2,7 +2,7 @@ import { View, Text, Pressable, StyleSheet, SafeAreaView } from "react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Clipboard from "expo-clipboard";
-import { buscarHistorico, salvarHistorico } from "../services/storage.js";
+import { buscarHistorico, deletarSenha as deletarSenhaService } from "../services/storage.js";
 
 export default function Historico({ navigation }) {
   const [historico, setHistorico] = useState([]);
@@ -31,10 +31,26 @@ export default function Historico({ navigation }) {
     await Clipboard.setStringAsync(senha);
   };
 
-  const deletarSenha = async (id) => {
-    const novoHistorico = historico.filter((item) => item.id !== id);
-    setHistorico(novoHistorico);
-    await salvarHistorico(novoHistorico);
+  const handleDeletarSenha = async (id) => {
+    try {
+      await deletarSenhaService(id);
+      // atualizar estado localmente sem recarregar totalmente
+      setHistorico((prev) => prev.filter((item) => item.id !== id));
+      setVisiveis((v) => {
+        const copy = { ...v };
+        delete copy[id];
+        return copy;
+      });
+    } catch (err) {
+      console.warn("Erro ao deletar senha:", err.message || err);
+      // fallback: remover localmente para não quebrar a UI
+      setHistorico((prev) => prev.filter((item) => item.id !== id));
+      setVisiveis((v) => {
+        const copy = { ...v };
+        delete copy[id];
+        return copy;
+      });
+    }
   };
 
   return (
@@ -79,7 +95,7 @@ export default function Historico({ navigation }) {
                   </Pressable>
 
                   <Pressable
-                    onPress={() => deletarSenha(item.id)}
+                    onPress={() => handleDeletarSenha(item.id)}
                     style={styles.iconButton}
                   >
                     <Text style={styles.icon}>🗑️</Text>

@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { apiRequest } from "./api";
 
 const CHAVE_SENHA = "@historicoSenhas";
 
@@ -15,13 +16,44 @@ const getChaveUsuario = async () => {
   return CHAVE_SENHA;
 };
 
+// Busca histórico do backend; em caso de erro, faz fallback para AsyncStorage local
 export async function buscarHistorico() {
-  const chave = await getChaveUsuario();
-  const dados = await AsyncStorage.getItem(chave);
-  return dados ? JSON.parse(dados) : [];
+  try {
+    const data = await apiRequest("/senhas", { method: "GET" });
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn("buscarHistorico: erro na API, usando fallback local", err.message || err);
+    const chave = await getChaveUsuario();
+    const dados = await AsyncStorage.getItem(chave);
+    return dados ? JSON.parse(dados) : [];
+  }
 }
 
-export async function salvarHistorico(lista) {
-  const chave = await getChaveUsuario();
-  await AsyncStorage.setItem(chave, JSON.stringify(lista));
+// Salva uma senha no backend (obj = { nomeAplicativo, senha }).
+// Em caso de erro, salva localmente como fallback.
+export async function salvarSenha(obj) {
+  if (!obj || typeof obj !== "object") {
+    throw new Error("Objeto inválido para salvarSenha");
+  }
+  // Agora só salva no backend, sem fallback local
+  return await apiRequest("/senhas", {
+    method: "POST",
+    body: JSON.stringify(obj),
+  });
+}
+
+// Deleta senha por id no backend; fallback para remoção local
+export async function deletarSenha(id) {
+  try {
+    await apiRequest(`/senhas/${id}`, { method: "DELETE" });
+    return true;
+  } catch (err) {
+    console.warn("deletarSenha: erro na API, deletando localmente", err.message || err);
+    const chave = await getChaveUsuario();
+    const dados = await AsyncStorage.getItem(chave);
+    const lista = dados ? JSON.parse(dados) : [];
+    const novo = lista.filter((item) => item.id !== id);
+    await AsyncStorage.setItem(chave, JSON.stringify(novo));
+    return true;
+  }
 }

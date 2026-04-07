@@ -7,10 +7,11 @@ import {
   Modal,
   TextInput,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
-import { buscarHistorico, salvarHistorico } from "../services/storage.js";
+import { buscarHistorico, salvarSenha } from "../services/storage.js";
 import { logoutUsuario } from "../services/auth";
 
 const SENHA_PADRAO = "Gere sua senha!";
@@ -19,6 +20,7 @@ export default function Home({ navigation }) {
   const [senha, setSenha] = useState(SENHA_PADRAO);
   const [modalVisible, setModalVisible] = useState(false);
   const [nomeAplicativo, setNomeAplicativo] = useState("");
+  const [saveError, setSaveError] = useState(null);
 
   const senhaGerada = senha !== SENHA_PADRAO;
 
@@ -57,25 +59,24 @@ export default function Home({ navigation }) {
   const fecharModal = () => {
     setModalVisible(false);
     setNomeAplicativo("");
+  setSaveError(null);
   };
 
   const podeCriar = nomeAplicativo.trim() !== "" && senhaGerada;
 
   const criarSenha = async () => {
     if (!podeCriar) return;
-
-    const historicoAtual = await buscarHistorico();
-
-    const novoItem = {
-      id: Date.now().toString(),
-      nomeAplicativo: nomeAplicativo.trim(),
-      senha,
-    };
-
-    const novoHistorico = [novoItem, ...historicoAtual];
-    await salvarHistorico(novoHistorico);
-
-    fecharModal();
+    try {
+      await salvarSenha({ nomeAplicativo: nomeAplicativo.trim(), senha });
+  setSaveError(null);
+  fecharModal();
+    } catch (err) {
+  const msg = err?.details?.mensagem || err?.message || "Erro ao salvar senha";
+  // show inline error in modal
+  setSaveError(msg);
+  // also alert for visibility
+  Alert.alert("Erro", msg);
+    }
   };
 
   return (
@@ -147,8 +148,15 @@ export default function Home({ navigation }) {
                 placeholder="Ex.: Gmail, Steam, Instagram..."
                 placeholderTextColor="#7A7A7A"
                 value={nomeAplicativo}
-                onChangeText={setNomeAplicativo}
+                onChangeText={(text) => {
+                  setNomeAplicativo(text);
+                  if (saveError) setSaveError(null);
+                }}
               />
+
+              {saveError ? (
+                <Text style={styles.errorText}>{saveError}</Text>
+              ) : null}
 
               <Text style={styles.label}>Senha gerada</Text>
               <TextInput
@@ -286,6 +294,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: "600",
     color: "#B3B3B3",
+  },
+  errorText: {
+    color: "#FF6B6B",
+    marginBottom: 8,
+    fontSize: 13,
+    fontWeight: "600",
   },
   input: {
     borderWidth: 1,
