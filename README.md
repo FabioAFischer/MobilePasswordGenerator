@@ -161,3 +161,45 @@ A URL da API é detectada automaticamente conforme o contexto:
 - Android: http://10.0.2.2:8080/api
 - Celular/outro: configure em services/api.js ou EXPO_PUBLIC_API_URL
 
+## Observação sobre execução no Android (Emulador / Android Studio)
+
+Durante o desenvolvimento, foi identificado que a execução do aplicativo no emulador do Android Studio pode apresentar instabilidades ou não funcionar corretamente em alguns ambientes.
+
+Por outro lado, a aplicação funciona normalmente quando executada via Web (Expo Web).
+
+Isso pode ocorrer por alguns motivos comuns:
+
+- Problemas de rede entre o emulador e o backend
+- Configuração incorreta do endereço da API
+- Diferença entre `localhost` e o IP acessível pelo emulador
+- Limitações do ambiente Docker ao expor serviços para o emulador
+
+### Possíveis soluções
+
+Caso o app não funcione no emulador, tente as seguintes abordagens:
+
+- Utilize o endereço especial do Android:
+
+http://10.0.2.2:8080/api
+
+em vez de:
+
+http://localhost:8080/api
+
+
+- Verifique se o backend está rodando corretamente:
+```bash
+docker compose logs backend
+Certifique-se de que as portas estão expostas corretamente no Docker (8080 para backend e 8081 para frontend web)
+Teste a aplicação utilizando:
+Navegador (Expo Web)
+Dispositivo físico (na mesma rede do computador)
+Recomendação
+
+Para garantir o funcionamento durante a avaliação ou testes:
+
+Priorize rodar o projeto via Web (Expo)
+Ou utilize um dispositivo físico conectado à mesma rede
+
+O uso do emulador Android pode exigir ajustes adicionais dependendo da máquina e do ambiente configurado.
+
