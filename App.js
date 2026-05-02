@@ -1,3 +1,4 @@
+import "./global.css";
 import "react-native-gesture-handler";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -26,7 +27,7 @@ export default function App() {
 
   if (!initialRoute) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
       </View>
     );

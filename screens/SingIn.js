@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   Pressable,
-  StyleSheet,
   SafeAreaView,
   Alert,
 } from "react-native";
@@ -45,20 +44,24 @@ export default function SignIn({ navigation, route }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        <View style={styles.logoArea}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>🔐</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-1 justify-center px-7">
+        <View className="mb-9 items-center">
+          <View className="mb-4 h-[88px] w-[88px] items-center justify-center rounded-full bg-primary">
+            <Text className="text-[34px]">🔐</Text>
           </View>
-          <Text style={styles.title}>Sign in</Text>
-          <Text style={styles.subtitle}>Entre para continuar</Text>
+          <Text className="text-[32px] font-bold text-white">Sign in</Text>
+          <Text className="mt-1.5 text-[15px] text-muted">
+            Entre para continuar
+          </Text>
         </View>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>E-mail</Text>
+        <View className="rounded-[20px] border border-border bg-surface p-[22px]">
+          <Text className="mb-2 mt-1.5 text-sm font-semibold text-muted">
+            E-mail
+          </Text>
           <TextInput
-            style={styles.input}
+            className="mb-3 rounded-[14px] border border-border bg-surfaceAlt px-3.5 py-3.5 text-[15px] text-white"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -66,9 +69,11 @@ export default function SignIn({ navigation, route }) {
             placeholder="Digite seu e-mail"
           />
 
-          <Text style={styles.label}>Senha</Text>
+          <Text className="mb-2 mt-1.5 text-sm font-semibold text-muted">
+            Senha
+          </Text>
           <TextInput
-            style={styles.input}
+            className="mb-3 rounded-[14px] border border-border bg-surfaceAlt px-3.5 py-3.5 text-[15px] text-white"
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
@@ -76,112 +81,26 @@ export default function SignIn({ navigation, route }) {
           />
 
           <Pressable
-            style={[styles.primaryButton, !podeEntrar && styles.buttonDisabled]}
+            className={`mb-[18px] mt-2.5 items-center rounded-[14px] bg-primary py-[15px] ${
+              !podeEntrar ? "opacity-[0.45]" : ""
+            }`}
             onPress={handleEntrar}
             disabled={!podeEntrar}
           >
-            <Text style={styles.primaryButtonText}>
+            <Text className="text-base font-bold text-white">
               {loading ? "Entrando..." : "Entrar"}
             </Text>
           </Pressable>
 
           <Text
-            style={styles.linkText}
+            className="text-center text-sm text-muted"
             onPress={() => navigation.navigate("SignUp")}
           >
             Ainda não possui conta?{" "}
-            <Text style={styles.linkStrong}>Crie agora</Text>
+            <Text className="font-bold text-primary">Crie agora</Text>
           </Text>
         </View>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#121212",
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 28,
-  },
-  logoArea: {
-    alignItems: "center",
-    marginBottom: 36,
-  },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: "#FF7A00",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  logoText: {
-    fontSize: 34,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#B3B3B3",
-    marginTop: 6,
-  },
-  form: {
-    backgroundColor: "#232323",
-    borderRadius: 20,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: "#2C2C2C",
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#B3B3B3",
-    marginBottom: 8,
-    marginTop: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#2C2C2C",
-    backgroundColor: "#1E1E1E",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    fontSize: 15,
-    color: "#FFFFFF",
-    marginBottom: 12,
-  },
-  primaryButton: {
-    backgroundColor: "#FF7A00",
-    paddingVertical: 15,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 18,
-  },
-  buttonDisabled: {
-    opacity: 0.45,
-  },
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  linkText: {
-    textAlign: "center",
-    color: "#B3B3B3",
-    fontSize: 14,
-  },
-  linkStrong: {
-    color: "#FF7A00",
-    fontWeight: "700",
-  },
-});
