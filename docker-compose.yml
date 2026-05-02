@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   db:
     image: postgres:16
@@ -9,11 +10,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d passwordgenerator"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -53,17 +54,16 @@ services:
       backend:
         condition: service_healthy
     environment:
-      EXPO_PUBLIC_API_URL: http://localhost:8080/api
+      EXPO_NO_TELEMETRY: "1"
+      BROWSER: "none"
+      EXPO_PUBLIC_API_URL: http://10.0.2.2:8080/api
+      REACT_NATIVE_PACKAGER_HOSTNAME: 10.0.2.2
     ports:
       - "8081:8081"
-      - "19006:19006"
-    command: npx expo start --web --host lan
-    healthcheck:
-      test: ["CMD-SHELL", "node -e 'const http=require(\"http\"); const req=http.get(\"http://localhost:19006\", res=>{ process.exit(res.statusCode>=200 && res.statusCode<400 ? 0 : 1); }); req.on(\"error\", ()=>process.exit(1));'" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    stdin_open: true
+    tty: true
 volumes:
-  pgdata:
+    pgdata:

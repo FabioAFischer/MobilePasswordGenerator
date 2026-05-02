@@ -1,205 +1,108 @@
 # Mobile Password Generator
 
-Aplicativo para gerar e armazenar senhas de forma segura, com isolamento de dados por usuário. O projeto roda com React Native via Expo no frontend, Spring Boot no backend, PostgreSQL como banco, tudo containerizado com Docker.
+Aplicativo mobile para gerar e armazenar senhas, com frontend em React Native/Expo, backend em Spring Boot e banco PostgreSQL.
 
 ## Pré-requisitos
 
-Você vai precisar dessas ferramentas instaladas:
+- Node.js e npm
+- Docker e Docker Compose
+- Java JDK
+- Android Studio com um emulador Android configurado
 
-- Node.js (versão 16+) - https://nodejs.org/
-- npm (vem junto com Node.js)
-- Docker e Docker Compose - https://www.docker.com/products/docker-desktop
-- Java JDK (versão 11+) - https://www.oracle.com/java/technologies/downloads/
-- Git - https://git-scm.com/
-- Android Studio com emulador configurado (opcional, apenas para testar no Android)
+## Instalação
 
-Para verificar se tudo está instalado:
-
-```powershell
-node --version
-npm --version
-docker --version
-java -version
-```
-## Configuração inicial
-
-Clone o repositório e acesse a pasta:
-
-```powershell
-git clone [URL_DO_SEU_REPOSITORIO]
-cd MobilePasswordGenerator
-```
-
-Instale as dependências do Node:
-
-```powershell
-npm install
-```
-
-## Subindo o backend e banco com Docker
-
-O Docker Compose já está configurado para rodar backend e PostgreSQL. Na pasta raiz do projeto, execute:
-
-```powershell
-docker compose up -d --build backend
-```
-
-Isso vai:
-- Construir a imagem do backend (Spring Boot)
-- Criar e iniciar o container do PostgreSQL
-- Iniciar o container do backend
-- Rodar tudo em background (-d)
-
-Para verificar se ficou tudo rodando:
-
-```powershell
-docker compose ps
-```
-
-Você deve ver dois containers com status "Up". Se algo der errado, veja os logs:
-
-```powershell
-docker compose logs backend
-```
-
-O backend estará acessível em http://localhost:8080/api (quando rodando local no PC).
-
-## Executando o frontend no Expo Web
-
-Para testar rápido no navegador, use:
-
-```powershell
-npm run web
-```
-
-A aplicação vai abrir automaticamente no navegador em http://localhost:19006. Se não abrir, acesse manualmente.
-
-A detecção de URL é automática - o app vai usar http://localhost:8080/api quando rodando no web.
-
-## Executando o frontend no Emulador Android
-
-Se você quer testar no Android como seria em um celular de verdade:
-
-Primeiro, configure o emulador no Android Studio:
-1. Abra Android Studio
-2. Em Device Manager, crie um novo Virtual Device (Pixel 5, Android 13+)
-3. Inicie o emulador com o botão Play
-
-Depois, em um novo terminal:
-
-```powershell
-npm run android
-```
-
-O Expo detecta o emulador rodando e compila o app para ele. Na primeira vez demora um pouco.
-
-Durante o desenvolvimento, você pode recarregar o app:
-- Pressione 'r' para fast refresh
-- Pressione 'R' para hard reload
-- Pressione 'i' para iOS (se configurado)
-
-Importante: O app automaticamente usa http://10.0.2.2:8080/api quando detecta que está rodando em Android, porque localhost não funciona do emulador.
-
-## Testando se tudo funciona
-
-Para validar que backend, frontend e banco estão conversando:
-
-1. Certifique-se que Docker está rodando com `docker compose ps`
-
-2. Certifique-se que pelo menos um dos frontends está rodando (web ou android)
-
-3. Na tela de login, crie uma nova conta com:
-   - Nome: qualquer coisa
-   - Email: seu@email.com
-   - Senha: precisa ter maiúscula, número e caractere especial (exemplo: SenhaSegura123!)
-
-4. Se o cadastro funcionou, você é redirecionado para login. Faça login com a mesma conta.
-
-5. Na tela principal, gere uma senha e salve com um nome de app.
-
-6. Acesse o histórico e veja a senha lá.
-
-7. Faça logout (botão Sair).
-
-## Problemas comuns
-
-- "docker: command not found": instale Docker Desktop e reinicie o terminal.
-- "docker-compose: command not found": use `docker compose`.
-- Porta 8080 ocupada: pare os containers com `docker compose down` ou identify o processo com `netstat -ano | findstr :8080`.
-- "Network request failed":
-  - Web: use `http://localhost:8080/api`
-  - Android emulator: use `http://10.0.2.2:8080/api`
-  - Celular físico: use o IP da sua máquina.
-- Dependências: `npm install`; se falhar, apague `node_modules` e `package-lock.json` e reinstale.
-- Backend Docker travado: veja `docker compose logs -f backend` e reconstrua com `docker compose down && docker compose up -d --build backend`.
-- Emulador Android não inicia: abra o Device Manager no Android Studio e inicie o virtual device.
-- SafeAreaView warning: aviso só, não bloqueia.
-
-## Resumo de comandos
-
-```powershell
-git clone [repositorio]
-cd MobilePasswordGenerator
-npm install
-docker compose up -d --build backend
-```
-
-```powershell
-npm run web
-# ou
-npm run android
-```
-
-```powershell
-docker compose down
-# Ctrl+C no terminal do Expo para parar o frontend
-```
-## Info importante
-
-A URL da API é detectada automaticamente conforme o contexto:
-- Web: http://localhost:8080/api
-- Android: http://10.0.2.2:8080/api
-- Celular/outro: configure em services/api.js ou EXPO_PUBLIC_API_URL
-
-## Observação sobre execução no Android (Emulador / Android Studio)
-
-Durante o desenvolvimento, foi identificado que a execução do aplicativo no emulador do Android Studio pode apresentar instabilidades ou não funcionar corretamente em alguns ambientes.
-
-Por outro lado, a aplicação funciona normalmente quando executada via Web (Expo Web).
-
-Isso pode ocorrer por alguns motivos comuns:
-
-- Problemas de rede entre o emulador e o backend
-- Configuração incorreta do endereço da API
-- Diferença entre `localhost` e o IP acessível pelo emulador
-- Limitações do ambiente Docker ao expor serviços para o emulador
-
-### Possíveis soluções
-
-Caso o app não funcione no emulador, tente as seguintes abordagens:
-
-- Utilize o endereço especial do Android:
-
-http://10.0.2.2:8080/api
-
-em vez de:
-
-http://localhost:8080/api
-
-
-- Verifique se o backend está rodando corretamente:
 ```bash
-docker compose logs backend
-Certifique-se de que as portas estão expostas corretamente no Docker (8080 para backend e 8081 para frontend web)
-Teste a aplicação utilizando:
-Navegador (Expo Web)
-Dispositivo físico (na mesma rede do computador)
-Recomendação
+npm install
+```
 
-Para garantir o funcionamento durante a avaliação ou testes:
+## Execução Com Docker
 
-Priorize rodar o projeto via Web (Expo)
-Ou utilize um dispositivo físico conectado à mesma rede
+Suba banco, backend e Metro/Expo:
 
-O uso do emulador Android pode exigir ajustes adicionais dependendo da máquina e do ambiente configurado.
+```bash
+docker compose up --build
+```
 
+Serviços principais:
+
+- Backend: `http://localhost:8080/api`
+- Metro/Expo: `http://localhost:8081`
+- PostgreSQL exposto no host pela porta `5433`
+
+## Android Studio E Emulador
+
+O projeto está configurado principalmente para rodar no emulador do Android Studio.
+
+Fluxo recomendado:
+
+1. Abra o Android Studio.
+2. Inicie um emulador em Device Manager.
+3. Rode o projeto com Docker:
+
+```bash
+docker compose up --build
+```
+
+4. Abra o app pelo Expo Go no emulador usando:
+
+```text
+exp://10.0.2.2:8081
+```
+
+No Android Emulator, `10.0.2.2` aponta para a máquina host. Por isso o `docker-compose.yml` já vem configurado com:
+
+```yaml
+EXPO_PUBLIC_API_URL: http://10.0.2.2:8080/api
+REACT_NATIVE_PACKAGER_HOSTNAME: 10.0.2.2
+```
+
+## Quando Trocar O IP
+
+Se você rodar em outro tipo de emulador ou em um celular físico, talvez precise trocar o IP no serviço `mobile` do `docker-compose.yml`.
+
+Troque estes dois valores:
+
+```yaml
+EXPO_PUBLIC_API_URL: http://10.0.2.2:8080/api
+REACT_NATIVE_PACKAGER_HOSTNAME: 10.0.2.2
+```
+
+Use:
+
+- `10.0.2.2` para Android Emulator do Android Studio
+- IP LAN da sua máquina para celular físico na mesma rede
+- IP específico do seu emulador se ele não usar o padrão do Android Studio
+
+Depois de trocar o IP, reconstrua o container mobile:
+
+```bash
+docker compose build --no-cache mobile
+docker compose up --force-recreate mobile
+```
+
+## Execução Local Sem Docker No Frontend
+
+Também é possível rodar só o backend/banco no Docker e iniciar o Expo localmente:
+
+```bash
+docker compose up -d --build backend
+npm run android
+```
+
+Nesse modo, o Expo usa a configuração do seu ambiente local.
+
+## Comandos Úteis
+
+```bash
+docker compose ps
+docker compose logs -f backend
+docker compose logs -f mobile
+docker compose down
+```
+
+## Problemas Comuns
+
+- Se o app não conectar no backend pelo emulador, confira se `EXPO_PUBLIC_API_URL` está apontando para `http://10.0.2.2:8080/api`.
+- Se estiver usando celular físico, substitua `10.0.2.2` pelo IP LAN da sua máquina.
+- Se mudar variáveis `EXPO_PUBLIC_*`, reconstrua o container mobile.
+- Se a porta `8080` estiver ocupada, pare o processo que usa a porta ou altere o mapeamento no Docker Compose.
