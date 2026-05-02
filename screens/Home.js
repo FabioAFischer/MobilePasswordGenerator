@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import {
-  StyleSheet,
   Text,
   View,
   Pressable,
@@ -59,7 +58,7 @@ export default function Home({ navigation }) {
   const fecharModal = () => {
     setModalVisible(false);
     setNomeAplicativo("");
-  setSaveError(null);
+    setSaveError(null);
   };
 
   const podeCriar = nomeAplicativo.trim() !== "" && senhaGerada;
@@ -68,24 +67,25 @@ export default function Home({ navigation }) {
     if (!podeCriar) return;
     try {
       await salvarSenha({ nomeAplicativo: nomeAplicativo.trim(), senha });
-  setSaveError(null);
-  fecharModal();
+      setSaveError(null);
+      fecharModal();
     } catch (err) {
-  const msg = err?.details?.mensagem || err?.message || "Erro ao salvar senha";
-  // show inline error in modal
-  setSaveError(msg);
-  // also alert for visibility
-  Alert.alert("Erro", msg);
+      const msg =
+        err?.details?.mensagem || err?.message || "Erro ao salvar senha";
+      setSaveError(msg);
+      Alert.alert("Erro", msg);
     }
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-1 justify-center px-6 pb-8 pt-5">
         <StatusBar style="light" />
 
-        <View style={styles.header}>
-          <Text style={styles.title}>Gerador de senha</Text>
+        <View className="absolute left-6 right-6 top-[18px] flex-row items-center justify-between">
+          <Text className="text-[28px] font-bold text-white">
+            Gerador de senha
+          </Text>
           <Pressable
             onPress={() =>
               navigation.reset({
@@ -94,41 +94,54 @@ export default function Home({ navigation }) {
               })
             }
           >
-            <Text style={styles.logout}>Sair</Text>
+            <Text className="text-base font-bold text-primary">Sair</Text>
           </Pressable>
         </View>
 
-        <View style={styles.passwordBox}>
-          <Text style={styles.passwordLabel}>Senha gerada</Text>
-          <Text style={styles.passwordText}>{senha}</Text>
+        <View className="mb-7 rounded-[20px] border border-border bg-surface px-5 py-7">
+          <Text className="mb-2.5 text-center text-sm text-muted">
+            Senha gerada
+          </Text>
+          <Text className="text-center text-[22px] font-bold text-white">
+            {senha}
+          </Text>
         </View>
 
-        <View style={styles.buttonsArea}>
-          <Pressable style={styles.button} onPress={generatePassword}>
-            <Text style={styles.buttonText}>Gerar senha</Text>
+        <View className="gap-3">
+          <Pressable
+            className="items-center rounded-[14px] bg-primary py-3.5"
+            onPress={generatePassword}
+          >
+            <Text className="text-base font-bold text-white">Gerar senha</Text>
           </Pressable>
 
           <Pressable
-            style={[styles.button, !senhaGerada && styles.buttonDisabled]}
+            className={`items-center rounded-[14px] bg-primary py-3.5 ${
+              !senhaGerada ? "opacity-[0.45]" : ""
+            }`}
             onPress={abrirModal}
             disabled={!senhaGerada}
           >
-            <Text style={styles.buttonText}>Salvar</Text>
+            <Text className="text-base font-bold text-white">Salvar</Text>
           </Pressable>
 
           <Pressable
-            style={[styles.button, !senhaGerada && styles.buttonDisabled]}
+            className={`items-center rounded-[14px] bg-primary py-3.5 ${
+              !senhaGerada ? "opacity-[0.45]" : ""
+            }`}
             onPress={copyToClipboard}
             disabled={!senhaGerada}
           >
-            <Text style={styles.buttonText}>Copiar senha</Text>
+            <Text className="text-base font-bold text-white">Copiar senha</Text>
           </Pressable>
 
           <Pressable
-            style={styles.outlineButton}
+            className="items-center rounded-[14px] border border-borderStrong bg-surfaceMuted py-3.5"
             onPress={() => navigation.navigate("Historico")}
           >
-            <Text style={styles.outlineButtonText}>Acessar histórico</Text>
+            <Text className="text-base font-bold text-white">
+              Acessar histórico
+            </Text>
           </Pressable>
         </View>
 
@@ -138,13 +151,17 @@ export default function Home({ navigation }) {
           visible={modalVisible}
           onRequestClose={fecharModal}
         >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>Salvar senha</Text>
+          <View className="flex-1 items-center justify-center bg-black/70 px-6">
+            <View className="w-full max-w-[420px] rounded-[18px] bg-surface p-[22px]">
+              <Text className="mb-[18px] text-center text-[22px] font-bold text-white">
+                Salvar senha
+              </Text>
 
-              <Text style={styles.label}>Nome do aplicativo</Text>
+              <Text className="mb-2 font-semibold text-muted">
+                Nome do aplicativo
+              </Text>
               <TextInput
-                style={styles.input}
+                className="mb-3.5 rounded-[14px] border border-border bg-surfaceAlt px-3.5 py-3.5 text-[15px] text-white"
                 placeholder="Ex.: Gmail, Steam, Instagram..."
                 placeholderTextColor="#7A7A7A"
                 value={nomeAplicativo}
@@ -155,29 +172,37 @@ export default function Home({ navigation }) {
               />
 
               {saveError ? (
-                <Text style={styles.errorText}>{saveError}</Text>
+                <Text className="mb-2 text-[13px] font-semibold text-danger">
+                  {saveError}
+                </Text>
               ) : null}
 
-              <Text style={styles.label}>Senha gerada</Text>
+              <Text className="mb-2 font-semibold text-muted">
+                Senha gerada
+              </Text>
               <TextInput
-                style={[styles.input, styles.disabledInput]}
+                className="mb-3.5 rounded-[14px] border border-border bg-background px-3.5 py-3.5 text-[15px] text-muted"
                 value={senha}
                 editable={false}
               />
 
               <Pressable
-                style={[
-                  styles.modalButton,
-                  !podeCriar && styles.buttonDisabled,
-                ]}
+                className={`mt-1.5 items-center rounded-[14px] bg-primary py-3.5 ${
+                  !podeCriar ? "opacity-[0.45]" : ""
+                }`}
                 onPress={criarSenha}
                 disabled={!podeCriar}
               >
-                <Text style={styles.buttonText}>Criar</Text>
+                <Text className="text-base font-bold text-white">Criar</Text>
               </Pressable>
 
-              <Pressable style={styles.cancelButton} onPress={fecharModal}>
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              <Pressable
+                className="mt-2 items-center py-3"
+                onPress={fecharModal}
+              >
+                <Text className="text-[15px] font-semibold text-muted">
+                  Cancelar
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -186,151 +211,3 @@ export default function Home({ navigation }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#121212",
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
-    justifyContent: "center",
-  },
-  header: {
-    position: "absolute",
-    top: 18,
-    left: 24,
-    right: 24,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  title: {
-    color: "#FFFFFF",
-    fontSize: 28,
-    fontWeight: "700",
-  },
-  logout: {
-    color: "#FF7A00",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  passwordBox: {
-    backgroundColor: "#232323",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#2C2C2C",
-    paddingVertical: 28,
-    paddingHorizontal: 20,
-    marginBottom: 28,
-  },
-  passwordLabel: {
-    color: "#B3B3B3",
-    fontSize: 14,
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  passwordText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontSize: 22,
-    fontWeight: "700",
-  },
-  buttonsArea: {
-    gap: 12,
-  },
-  button: {
-    backgroundColor: "#FF7A00",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  outlineButton: {
-    backgroundColor: "#2A2A2A",
-    borderWidth: 1,
-    borderColor: "#3A3A3A",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  outlineButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  buttonDisabled: {
-    opacity: 0.45,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
-  },
-  modalBox: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: "#232323",
-    borderRadius: 18,
-    padding: 22,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginBottom: 18,
-  },
-  label: {
-    marginBottom: 8,
-    fontWeight: "600",
-    color: "#B3B3B3",
-  },
-  errorText: {
-    color: "#FF6B6B",
-    marginBottom: 8,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#2C2C2C",
-    backgroundColor: "#1E1E1E",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    fontSize: 15,
-    color: "#FFFFFF",
-    marginBottom: 14,
-  },
-  disabledInput: {
-    backgroundColor: "#121212",
-    color: "#B3B3B3",
-  },
-  modalButton: {
-    backgroundColor: "#FF7A00",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 6,
-  },
-  cancelButton: {
-    paddingVertical: 12,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  cancelButtonText: {
-    color: "#B3B3B3",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-});

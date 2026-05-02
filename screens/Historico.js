@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, Pressable, SafeAreaView } from "react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Clipboard from "expo-clipboard";
@@ -34,7 +34,6 @@ export default function Historico({ navigation }) {
   const handleDeletarSenha = async (id) => {
     try {
       await deletarSenhaService(id);
-      // atualizar estado localmente sem recarregar totalmente
       setHistorico((prev) => prev.filter((item) => item.id !== id));
       setVisiveis((v) => {
         const copy = { ...v };
@@ -43,7 +42,6 @@ export default function Historico({ navigation }) {
       });
     } catch (err) {
       console.warn("Erro ao deletar senha:", err.message || err);
-      // fallback: remover localmente para não quebrar a UI
       setHistorico((prev) => prev.filter((item) => item.id !== id));
       setVisiveis((v) => {
         const copy = { ...v };
@@ -54,51 +52,60 @@ export default function Historico({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        <View style={styles.topBar}>
-          <Text style={styles.title}>Histórico de senhas</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-1 px-5 pt-[18px]">
+        <View className="mb-6 flex-row items-center justify-between">
+          <Text className="text-[28px] font-bold text-white">
+            Histórico de senhas
+          </Text>
 
           <Pressable onPress={() => navigation.goBack()}>
-            <Text style={styles.backText}>Voltar</Text>
+            <Text className="text-base font-bold text-primary">Voltar</Text>
           </Pressable>
         </View>
 
         {historico.length === 0 ? (
-          <Text style={styles.empty}>Você ainda não possui senhas salvas.</Text>
+          <Text className="mt-[30px] text-center text-[15px] text-muted">
+            Você ainda não possui senhas salvas.
+          </Text>
         ) : (
-          <View style={styles.lista}>
+          <View className="w-full">
             {historico.map((item) => (
-              <View key={item.id} style={styles.card}>
-                <View style={styles.infoArea}>
-                  <Text style={styles.appText}>{item.nomeAplicativo}</Text>
-                  <Text style={styles.senhaText}>
+              <View
+                key={item.id}
+                className="mb-3.5 w-full flex-row items-center justify-between rounded-[18px] border border-border bg-surface px-[18px] py-[18px]"
+              >
+                <View className="flex-1 pr-2.5">
+                  <Text className="mb-2 text-[17px] font-bold text-white">
+                    {item.nomeAplicativo}
+                  </Text>
+                  <Text className="text-[15px] font-semibold tracking-[0.7px] text-muted">
                     {visiveis[item.id] ? item.senha : "••••••••••••"}
                   </Text>
                 </View>
 
-                <View style={styles.actions}>
+                <View className="flex-row items-center gap-1">
                   <Pressable
                     onPress={() => alternarVisibilidade(item.id)}
-                    style={styles.iconButton}
+                    className="h-[42px] w-[42px] items-center justify-center"
                   >
-                    <Text style={styles.icon}>
+                    <Text className="text-[21px]">
                       {visiveis[item.id] ? "🙈" : "👁️"}
                     </Text>
                   </Pressable>
 
                   <Pressable
                     onPress={() => copiarSenha(item.senha)}
-                    style={styles.iconButton}
+                    className="h-[42px] w-[42px] items-center justify-center"
                   >
-                    <Text style={styles.icon}>📋</Text>
+                    <Text className="text-[21px]">📋</Text>
                   </Pressable>
 
                   <Pressable
                     onPress={() => handleDeletarSenha(item.id)}
-                    style={styles.iconButton}
+                    className="h-[42px] w-[42px] items-center justify-center"
                   >
-                    <Text style={styles.icon}>🗑️</Text>
+                    <Text className="text-[21px]">🗑️</Text>
                   </Pressable>
                 </View>
               </View>
@@ -109,83 +116,3 @@ export default function Historico({ navigation }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#121212",
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 18,
-  },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  backText: {
-    color: "#FF7A00",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  lista: {
-    width: "100%",
-  },
-  card: {
-    width: "100%",
-    backgroundColor: "#232323",
-    borderWidth: 1,
-    borderColor: "#2C2C2C",
-    borderRadius: 18,
-    paddingVertical: 18,
-    paddingHorizontal: 18,
-    marginBottom: 14,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  infoArea: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  appText: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    marginBottom: 8,
-  },
-  senhaText: {
-    fontSize: 15,
-    color: "#B3B3B3",
-    fontWeight: "600",
-    letterSpacing: 0.7,
-  },
-  actions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  iconButton: {
-    width: 42,
-    height: 42,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  icon: {
-    fontSize: 21,
-  },
-  empty: {
-    color: "#B3B3B3",
-    textAlign: "center",
-    marginTop: 30,
-    fontSize: 15,
-  },
-});

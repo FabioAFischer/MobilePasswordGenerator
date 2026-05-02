@@ -16,7 +16,6 @@ const getChaveUsuario = async () => {
   return CHAVE_SENHA;
 };
 
-// Busca histórico do backend; em caso de erro, faz fallback para AsyncStorage local
 export async function buscarHistorico() {
   try {
     const data = await apiRequest("/senhas", { method: "GET" });
@@ -29,20 +28,16 @@ export async function buscarHistorico() {
   }
 }
 
-// Salva uma senha no backend (obj = { nomeAplicativo, senha }).
-// Em caso de erro, salva localmente como fallback.
 export async function salvarSenha(obj) {
   if (!obj || typeof obj !== "object") {
     throw new Error("Objeto inválido para salvarSenha");
   }
-  // Agora só salva no backend, sem fallback local
   return await apiRequest("/senhas", {
     method: "POST",
     body: JSON.stringify(obj),
   });
 }
 
-// Deleta senha por id no backend; fallback para remoção local
 export async function deletarSenha(id) {
   try {
     await apiRequest(`/senhas/${id}`, { method: "DELETE" });
