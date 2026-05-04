@@ -8,10 +8,12 @@ import {
   SafeAreaView,
   Alert,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
 import * as Clipboard from "expo-clipboard";
-import { buscarHistorico, salvarSenha } from "../services/storage.js";
+
 import { logoutUsuario } from "../services/auth";
+import { useSenhasStore } from "../stores/senhasStore";
 
 const SENHA_PADRAO = "Gere sua senha!";
 
@@ -20,6 +22,16 @@ export default function Home({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [nomeAplicativo, setNomeAplicativo] = useState("");
   const [saveError, setSaveError] = useState(null);
+  const [isOnline, setIsOnline] = useState(true);
+  const adicionarSenha = useSenhasStore((state) => state.adicionarSenha);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsOnline(Boolean(state.isConnected && state.isInternetReachable !== false));
+    });
+
+    return unsubscribe;
+  }, []);
 
   const senhaGerada = senha !== SENHA_PADRAO;
 
@@ -30,6 +42,7 @@ export default function Home({ navigation }) {
       routes: [{ name: "SignIn" }],
     });
   };
+
   const generatePassword = () => {
     let password = "";
     const characters =
@@ -62,16 +75,24 @@ export default function Home({ navigation }) {
   };
 
   const podeCriar = nomeAplicativo.trim() !== "" && senhaGerada;
+  const textoConexao =
+    isOnline ? "Online" : "Offline - dados salvos localmente";
 
-  const criarSenha = async () => {
-    if (!podeCriar) return;
+  const criarSenha = () => {
+    if (!podeCriar) {
+      Alert.alert("Atencao", "Informe o nome do aplicativo.");
+      return;
+    }
+
     try {
-      await salvarSenha({ nomeAplicativo: nomeAplicativo.trim(), senha });
+      adicionarSenha({
+        nomeAplicativo: nomeAplicativo.trim(),
+        senha,
+      });
       setSaveError(null);
       fecharModal();
     } catch (err) {
-      const msg =
-        err?.details?.mensagem || err?.message || "Erro ao salvar senha";
+      const msg = err?.message || "Erro ao salvar senha localmente";
       setSaveError(msg);
       Alert.alert("Erro", msg);
     }
@@ -82,20 +103,23 @@ export default function Home({ navigation }) {
       <View className="flex-1 justify-center px-6 pb-8 pt-5">
         <StatusBar style="light" />
 
-        <View className="absolute left-6 right-6 top-[18px] flex-row items-center justify-between">
-          <Text className="text-[28px] font-bold text-white">
-            Gerador de senha
-          </Text>
-          <Pressable
-            onPress={() =>
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "SignIn" }],
-              })
-            }
+        <View className="absolute left-6 right-6 top-[18px]">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-[28px] font-bold text-white">
+              Gerador de senha
+            </Text>
+            <Pressable onPress={handleLogout}>
+              <Text className="text-base font-bold text-primary">Sair</Text>
+            </Pressable>
+          </View>
+
+          <Text
+            className={`mt-2 text-[13px] font-semibold ${
+              isOnline ? "text-muted" : "text-danger"
+            }`}
           >
-            <Text className="text-base font-bold text-primary">Sair</Text>
-          </Pressable>
+            {textoConexao}
+          </Text>
         </View>
 
         <View className="mb-7 rounded-[20px] border border-border bg-surface px-5 py-7">
@@ -140,7 +164,7 @@ export default function Home({ navigation }) {
             onPress={() => navigation.navigate("Historico")}
           >
             <Text className="text-base font-bold text-white">
-              Acessar histórico
+              Acessar historico
             </Text>
           </Pressable>
         </View>

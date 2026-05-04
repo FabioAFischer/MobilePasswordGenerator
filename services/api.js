@@ -1,44 +1,59 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { Platform } from "react-native";
 
 const isWeb = Platform.OS === "web";
 const defaultURL = isWeb ? "http://localhost:8080/api" : "http://10.0.2.2:8080/api";
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || defaultURL;
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || defaultURL;
 const TOKEN_KEY = "@app_token";
 
-export async function apiRequest(path, options = {}) {
-  const token = await AsyncStorage.getItem(TOKEN_KEY);
-  const headers = {
+const api = axios.create({
+  baseURL: BASE_URL,
+  timeout: 10000,
+  headers: {
     "Content-Type": "application/json",
-    ...(options.headers || {}),
-  };
+  },
+});
 
-  if (token && !headers.Authorization) {
-    headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem(TOKEN_KEY);
+
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers,
-    ...options,
-  });
+  return config;
+});
 
-  const contentType = response.headers.get("content-type") || "";
-  const data = contentType.includes("application/json")
-    ? await response.json()
-    : await response.text();
+export async function apiRequest(path, options = {}) {
+  const method = options.method || "GET";
+  const headers = options.headers || {};
+  const body =
+    typeof options.body === "string" ? JSON.parse(options.body) : options.body;
 
-  if (!response.ok) {
+  try {
+    const response = await api.request({
+      url: path,
+      method,
+      headers,
+      data: body,
+    });
+
+    return response.data;
+  } catch (err) {
+    const data = err.response?.data;
     const error = new Error(
       data?.mensagem ||
-      data?.message ||
-      data?.erro ||
-      data?.error ||
-      "Erro ao comunicar com o servidor"
+        data?.message ||
+        data?.erro ||
+        data?.error ||
+        err.message ||
+        "Erro ao comunicar com o servidor",
     );
 
     error.details = data;
     throw error;
   }
-
-  return data;
 }
+
+export default api;

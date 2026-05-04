@@ -1,24 +1,25 @@
-import { View, Text, Pressable, SafeAreaView } from "react-native";
-import { useState, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { View, Text, Pressable, SafeAreaView, ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
 import * as Clipboard from "expo-clipboard";
-import { buscarHistorico, deletarSenha as deletarSenhaService } from "../services/storage.js";
+
+import CopyIcon from "../components/icons/CopyIcon";
+import ShowIcon from "../components/icons/ShowIcon";
+import { useSenhasStore } from "../stores/senhasStore";
 
 export default function Historico({ navigation }) {
-  const [historico, setHistorico] = useState([]);
   const [visiveis, setVisiveis] = useState({});
+  const [isOnline, setIsOnline] = useState(true);
+  const senhas = useSenhasStore((state) => state.senhas);
+  const removerSenha = useSenhasStore((state) => state.removerSenha);
 
-  const carregarHistorico = async () => {
-    const dados = await buscarHistorico();
-    setHistorico(dados);
-    setVisiveis({});
-  };
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsOnline(Boolean(state.isConnected && state.isInternetReachable !== false));
+    });
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarHistorico();
-    }, []),
-  );
+    return unsubscribe;
+  }, []);
 
   const alternarVisibilidade = (id) => {
     setVisiveis((estadoAnterior) => ({
@@ -31,86 +32,104 @@ export default function Historico({ navigation }) {
     await Clipboard.setStringAsync(senha);
   };
 
-  const handleDeletarSenha = async (id) => {
-    try {
-      await deletarSenhaService(id);
-      setHistorico((prev) => prev.filter((item) => item.id !== id));
-      setVisiveis((v) => {
-        const copy = { ...v };
-        delete copy[id];
-        return copy;
-      });
-    } catch (err) {
-      console.warn("Erro ao deletar senha:", err.message || err);
-      setHistorico((prev) => prev.filter((item) => item.id !== id));
-      setVisiveis((v) => {
-        const copy = { ...v };
-        delete copy[id];
-        return copy;
-      });
-    }
+  const handleDeletarSenha = (id) => {
+    removerSenha(id);
+    setVisiveis((v) => {
+      const copy = { ...v };
+      delete copy[id];
+      return copy;
+    });
   };
+
+  const textoConexao =
+    isOnline ? "Online" : "Offline - dados salvos localmente";
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 px-5 pt-[18px]">
-        <View className="mb-6 flex-row items-center justify-between">
-          <Text className="text-[28px] font-bold text-white">
-            Histórico de senhas
-          </Text>
+        <View className="mb-4">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-[28px] font-bold text-white">
+              Historico de senhas
+            </Text>
 
-          <Pressable onPress={() => navigation.goBack()}>
-            <Text className="text-base font-bold text-primary">Voltar</Text>
-          </Pressable>
+            <Pressable onPress={() => navigation.goBack()}>
+              <Text className="text-base font-bold text-primary">Voltar</Text>
+            </Pressable>
+          </View>
+
+          <Text
+            className={`mt-2 text-[13px] font-semibold ${
+              isOnline ? "text-muted" : "text-danger"
+            }`}
+          >
+            {textoConexao}
+          </Text>
         </View>
 
-        {historico.length === 0 ? (
+        {senhas.length === 0 ? (
           <Text className="mt-[30px] text-center text-[15px] text-muted">
-            Você ainda não possui senhas salvas.
+            Voce ainda nao possui senhas salvas.
           </Text>
         ) : (
-          <View className="w-full">
-            {historico.map((item) => (
+          <ScrollView className="w-full" showsVerticalScrollIndicator={false}>
+            {senhas.map((item) => (
               <View
                 key={item.id}
-                className="mb-3.5 w-full flex-row items-center justify-between rounded-[18px] border border-border bg-surface px-[18px] py-[18px]"
+                className="mb-3.5 w-full rounded-[18px] border border-border bg-surface px-[18px] py-[18px]"
               >
-                <View className="flex-1 pr-2.5">
-                  <Text className="mb-2 text-[17px] font-bold text-white">
-                    {item.nomeAplicativo}
-                  </Text>
-                  <Text className="text-[15px] font-semibold tracking-[0.7px] text-muted">
-                    {visiveis[item.id] ? item.senha : "••••••••••••"}
-                  </Text>
+                <View className="mb-3 flex-row items-start justify-between gap-3">
+                  <View className="flex-1">
+                    <Text className="mb-2 text-[17px] font-bold text-white">
+                      {item.nomeAplicativo}
+                    </Text>
+                    <Text className="text-[15px] font-semibold tracking-[0.7px] text-muted">
+                      {visiveis[item.id] ? item.senha : "************"}
+                    </Text>
+                  </View>
+
+                  <View className="flex-row items-center gap-1">
+                    <Pressable
+                      onPress={() => alternarVisibilidade(item.id)}
+                      className="h-[42px] w-[42px] items-center justify-center"
+                    >
+                      <ShowIcon color="#FF7A00" />
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => copiarSenha(item.senha)}
+                      className="h-[42px] w-[42px] items-center justify-center"
+                    >
+                      <CopyIcon color="#FF7A00" />
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => handleDeletarSenha(item.id)}
+                      className="h-[42px] w-[42px] items-center justify-center"
+                    >
+                      <Text className="text-[22px] font-bold text-danger">X</Text>
+                    </Pressable>
+                  </View>
                 </View>
 
-                <View className="flex-row items-center gap-1">
-                  <Pressable
-                    onPress={() => alternarVisibilidade(item.id)}
-                    className="h-[42px] w-[42px] items-center justify-center"
-                  >
-                    <Text className="text-[21px]">
-                      {visiveis[item.id] ? "🙈" : "👁️"}
-                    </Text>
-                  </Pressable>
+                <View className="flex-row flex-wrap items-center justify-between gap-2">
+                  <Text className="text-[12px] font-semibold text-muted">
+                    {new Date(item.createdAt).toLocaleString("pt-BR")}
+                  </Text>
 
-                  <Pressable
-                    onPress={() => copiarSenha(item.senha)}
-                    className="h-[42px] w-[42px] items-center justify-center"
+                  <Text
+                    className={`rounded-[12px] px-3 py-1 text-[12px] font-bold ${
+                      item.pending
+                        ? "bg-surfaceMuted text-primary"
+                        : "bg-surfaceAlt text-muted"
+                    }`}
                   >
-                    <Text className="text-[21px]">📋</Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => handleDeletarSenha(item.id)}
-                    className="h-[42px] w-[42px] items-center justify-center"
-                  >
-                    <Text className="text-[21px]">🗑️</Text>
-                  </Pressable>
+                    {item.pending ? "Pendente" : "Sincronizado"}
+                  </Text>
                 </View>
               </View>
             ))}
-          </View>
+          </ScrollView>
         )}
       </View>
     </SafeAreaView>

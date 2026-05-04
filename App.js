@@ -10,11 +10,13 @@ import SignUp from "./screens/SingUp";
 import Home from "./screens/Home";
 import Historico from "./screens/Historico";
 import { obterToken } from "./services/auth";
+import { useSyncSenhas } from "./hooks/useSyncSenhas";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
+  useSyncSenhas();
 
   useEffect(() => {
     async function carregarSessao() {
