@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 
 const isWeb = Platform.OS === "web";
 const defaultURL = isWeb ? "http://localhost:8080/api" : "http://10.0.2.2:8080/api";
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || defaultURL;
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || defaultURL;
 const TOKEN_KEY = "@app_token";
 
 export async function apiRequest(path, options = {}) {

@@ -10,8 +10,28 @@ import SignUp from "./screens/SingUp";
 import Home from "./screens/Home";
 import Historico from "./screens/Historico";
 import { obterToken } from "./services/auth";
+import { SenhasProvider } from "./context/SenhasContext";
+import useSyncSenhas from "./hooks/useSyncSenhas";
 
 const Stack = createNativeStackNavigator();
+
+function AppRoutes({ initialRoute }) {
+  useSyncSenhas();
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName={initialRoute}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="SignIn" component={SignIn} />
+        <Stack.Screen name="SignUp" component={SignUp} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Historico" component={Historico} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
@@ -34,16 +54,8 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={initialRoute}
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="SignIn" component={SignIn} />
-        <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Historico" component={Historico} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SenhasProvider>
+      <AppRoutes initialRoute={initialRoute} />
+    </SenhasProvider>
   );
 }

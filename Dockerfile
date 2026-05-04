@@ -27,9 +27,9 @@ COPY package*.json ./
 
 RUN npm install
 
-RUN if [ -f /app/node_modules/expo/node_modules/@react-native/debugger-shell/bin/react-native-devtools ]; then \
-      printf '#!/bin/sh\nexit 0\n' > /app/node_modules/expo/node_modules/@react-native/debugger-shell/bin/react-native-devtools && \
-      chmod +x /app/node_modules/expo/node_modules/@react-native/debugger-shell/bin/react-native-devtools; \
+RUN if [ -f /app/node_modules/@react-native/debugger-shell/bin/react-native-devtools ]; then \
+      printf '#!/bin/sh\nexit 0\n' > /app/node_modules/@react-native/debugger-shell/bin/react-native-devtools && \
+      chmod +x /app/node_modules/@react-native/debugger-shell/bin/react-native-devtools; \
     fi
 
 COPY . .
